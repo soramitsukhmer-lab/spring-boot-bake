@@ -197,6 +197,11 @@ By default, Spring Boot groups all dependencies into a single Docker layer. When
 
 This action includes an optional `internal-dependencies` layer. To use it, configure `bootJar` in your `build.gradle`:
 
+> **Note**
+>
+> Works on both Spring Boot 2.7.x and 3.3.x (Groovy DSL). The config is identical — only the jar extraction mode differs (`layertools` vs `tools`), which is handled by the Dockerfile.
+> The loader include pattern `org/springframework/boot/loader/**` matches both the 2.x package (`o.s.b.loader.JarLauncher`) and the 3.2+ package (`o.s.b.loader.launch.JarLauncher`).
+
 ```groovy
 bootJar {
     layered {
