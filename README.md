@@ -193,6 +193,42 @@ Following inputs can be used as `step.with` keys
 }
 ```
 
+## Vendor Dependencies Layer
+
+By default, Spring Boot groups all dependencies into a single Docker layer. When vendor libraries update frequently, the entire dependencies layer gets re-downloaded on every `docker pull` — even if 99% of the jars are unchanged.
+
+This action includes an optional `vendor-dependencies` layer. To use it, configure `bootJar` in your `build.gradle`:
+
+> **Note**
+>
+> Works on both Spring Boot 2.7.x and 3.3.x (Groovy DSL). The config is identical — only the jar extraction mode differs (`layertools` vs `tools`), which is handled by the Dockerfile.
+> The loader include pattern `org/springframework/boot/loader/**` matches both the 2.x package (`o.s.b.loader.JarLauncher`) and the 3.2+ package (`o.s.b.loader.launch.JarLauncher`).
+
+```groovy
+bootJar {
+    layered {
+        application {
+            intoLayer("spring-boot-loader") {
+                include "org/springframework/boot/loader/**"
+            }
+            intoLayer("application")
+        }
+        dependencies {
+            intoLayer("vendor-dependencies") {
+                include "com.example.mycompany:*"  // your vendor group
+            }
+            intoLayer("snapshot-dependencies") {
+                include "*:*:*SNAPSHOT"
+            }
+            intoLayer("dependencies")
+        }
+        layerOrder = ["dependencies", "spring-boot-loader", "vendor-dependencies", "snapshot-dependencies", "application"]
+    }
+}
+```
+
+Services without this config are unaffected — the `vendor-dependencies` layer will be empty (0B).
+
 ## Resources
 
 - [GitHub Action Environment variables](https://docs.github.com/en/actions/learn-github-actions/environment-variables)
