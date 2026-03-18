@@ -3,23 +3,28 @@ ARG GRADLE_BUILD_ARTIFACT
 ARG SPRING_BOOT_BAKE_PATH
 ARG SPRING_BOOT_BAKE_APPDIR="/app"
 ARG SPRING_BOOT_BAKE_BASE_IMAGE=eclipse-temurin:17-jre-jammy
+ARG SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS=false
 
 # Extract Spring Boot application layers using jarmode=tools
 FROM ${SPRING_BOOT_BAKE_BASE_IMAGE} AS layered-tools
 ARG SPRING_BOOT_BAKE_APPDIR
 ARG GRADLE_BUILD_ARTIFACT
+ARG SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS
 RUN --mount=type=bind,target=/src,rw \
     java -Djarmode=tools -jar /src/build/libs/${GRADLE_BUILD_ARTIFACT} extract --layers --launcher --destination ${SPRING_BOOT_BAKE_APPDIR} \
-    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/
+    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/ \
+    && if [ "${SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS}" = "true" ]; then find ${SPRING_BOOT_BAKE_APPDIR} -exec touch -t 197001010000 {} +; fi
 
 # Extract Spring Boot application layers using jarmode=layertools
 # Note: the jarmode=layertools is being deprecated in favor of jarmode=tools
 FROM ${SPRING_BOOT_BAKE_BASE_IMAGE} AS layered-layertools
 ARG SPRING_BOOT_BAKE_APPDIR
 ARG GRADLE_BUILD_ARTIFACT
+ARG SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS
 RUN --mount=type=bind,target=/src,rw \
     java -Djarmode=layertools -jar /src/build/libs/${GRADLE_BUILD_ARTIFACT} extract --destination ${SPRING_BOOT_BAKE_APPDIR} \
-    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/
+    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/ \
+    && if [ "${SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS}" = "true" ]; then find ${SPRING_BOOT_BAKE_APPDIR} -exec touch -t 197001010000 {} +; fi
 
 # Intermediate layer to extract the layers using the specified jarmode
 FROM layered-${JARMODE} AS layered

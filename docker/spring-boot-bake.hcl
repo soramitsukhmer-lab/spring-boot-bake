@@ -14,12 +14,17 @@ variable "SPRING_BOOT_BAKE_BASE_IMAGE" {
   default = "eclipse-temurin:17-jre-alpine"
 }
 
+variable "SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS" {
+  default = "false"
+}
+
 target "spring-boot-bake" {
   dockerfile = "${SPRING_BOOT_BAKE_PATH}/docker/Dockerfile"
   args = {
-    JARMODE                           = "${JARMODE}"
-    SPRING_BOOT_BAKE_PATH             = "${SPRING_BOOT_BAKE_PATH}"
-    SPRING_BOOT_BAKE_WORKDIR          = "${SPRING_BOOT_BAKE_WORKDIR}"
-    SPRING_BOOT_BAKE_BASE_IMAGE       = "${SPRING_BOOT_BAKE_BASE_IMAGE}"
+    JARMODE                                 = "${JARMODE}"
+    SPRING_BOOT_BAKE_PATH                   = "${SPRING_BOOT_BAKE_PATH}"
+    SPRING_BOOT_BAKE_WORKDIR                = "${SPRING_BOOT_BAKE_WORKDIR}"
+    SPRING_BOOT_BAKE_BASE_IMAGE             = "${SPRING_BOOT_BAKE_BASE_IMAGE}"
+    SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS   = "${SPRING_BOOT_BAKE_NORMALIZE_TIMESTAMPS}"
   }
 }
