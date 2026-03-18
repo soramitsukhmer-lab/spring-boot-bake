@@ -36,7 +36,4 @@ COPY --link --from=layered ${SPRING_BOOT_BAKE_APPDIR}/spring-boot-loader/ ${SPRI
 COPY --link --from=layered ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/ ${SPRING_BOOT_BAKE_APPDIR}
 COPY --link --from=layered ${SPRING_BOOT_BAKE_APPDIR}/snapshot-dependencies/ ${SPRING_BOOT_BAKE_APPDIR}
 COPY --link --from=layered ${SPRING_BOOT_BAKE_APPDIR}/application/ ${SPRING_BOOT_BAKE_APPDIR}
-ADD --chmod=0755 https://raw.githubusercontent.com/soramitsukhmer-lab/spring-boot-bake/v4/docker/java-entrypoint.sh /java-entrypoint.sh
-
-# Compatibility layer with previous version
-CMD /docker-entrypoint.sh
+ADD --chmod=0755 https://raw.githubusercontent.com/soramitsukhmer-lab/spring-boot-bake/v5/docker/java-entrypoint.sh /java-entrypoint.sh
