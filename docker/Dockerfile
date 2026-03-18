@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 ARG JARMODE=tools
 ARG GRADLE_BUILD_ARTIFACT
 ARG SPRING_BOOT_BAKE_PATH
