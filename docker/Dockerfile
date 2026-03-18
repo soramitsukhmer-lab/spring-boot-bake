@@ -10,7 +10,7 @@ ARG SPRING_BOOT_BAKE_APPDIR
 ARG GRADLE_BUILD_ARTIFACT
 RUN --mount=type=bind,target=/src,rw \
     java -Djarmode=tools -jar /src/build/libs/${GRADLE_BUILD_ARTIFACT} extract --layers --launcher --destination ${SPRING_BOOT_BAKE_APPDIR} \
-    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/internal-dependencies/
+    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/
 
 # Extract Spring Boot application layers using jarmode=layertools
 # Note: the jarmode=layertools is being deprecated in favor of jarmode=tools
@@ -19,7 +19,7 @@ ARG SPRING_BOOT_BAKE_APPDIR
 ARG GRADLE_BUILD_ARTIFACT
 RUN --mount=type=bind,target=/src,rw \
     java -Djarmode=layertools -jar /src/build/libs/${GRADLE_BUILD_ARTIFACT} extract --destination ${SPRING_BOOT_BAKE_APPDIR} \
-    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/internal-dependencies/
+    && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/
 
 # Intermediate layer to extract the layers using the specified jarmode
 FROM layered-${JARMODE} AS layered
@@ -33,7 +33,7 @@ ENV SPRING_BOOT_BAKE_APPDIR=${SPRING_BOOT_BAKE_APPDIR}
 WORKDIR ${SPRING_BOOT_BAKE_APPDIR}
 COPY --from=layered ${SPRING_BOOT_BAKE_APPDIR}/dependencies/ ${SPRING_BOOT_BAKE_APPDIR}
 COPY --from=layered ${SPRING_BOOT_BAKE_APPDIR}/spring-boot-loader/ ${SPRING_BOOT_BAKE_APPDIR}
-COPY --from=layered ${SPRING_BOOT_BAKE_APPDIR}/internal-dependencies/ ${SPRING_BOOT_BAKE_APPDIR}
+COPY --from=layered ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/ ${SPRING_BOOT_BAKE_APPDIR}
 COPY --from=layered ${SPRING_BOOT_BAKE_APPDIR}/snapshot-dependencies/ ${SPRING_BOOT_BAKE_APPDIR}
 COPY --from=layered ${SPRING_BOOT_BAKE_APPDIR}/application/ ${SPRING_BOOT_BAKE_APPDIR}
 ADD --chmod=0755 https://raw.githubusercontent.com/soramitsukhmer-lab/spring-boot-bake/v4/docker/java-entrypoint.sh /java-entrypoint.sh

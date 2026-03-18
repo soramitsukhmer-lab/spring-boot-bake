@@ -193,11 +193,11 @@ Following inputs can be used as `step.with` keys
 }
 ```
 
-## Internal Dependencies Layer
+## Vendor Dependencies Layer
 
-By default, Spring Boot groups all dependencies into a single Docker layer. When in-house libraries update frequently, the entire dependencies layer gets re-downloaded on every `docker pull` — even if 99% of the jars are unchanged.
+By default, Spring Boot groups all dependencies into a single Docker layer. When vendor libraries update frequently, the entire dependencies layer gets re-downloaded on every `docker pull` — even if 99% of the jars are unchanged.
 
-This action includes an optional `internal-dependencies` layer. To use it, configure `bootJar` in your `build.gradle`:
+This action includes an optional `vendor-dependencies` layer. To use it, configure `bootJar` in your `build.gradle`:
 
 > **Note**
 >
@@ -214,20 +214,20 @@ bootJar {
             intoLayer("application")
         }
         dependencies {
-            intoLayer("internal-dependencies") {
-                include "com.example.mycompany:*"  // your in-house group
+            intoLayer("vendor-dependencies") {
+                include "com.example.mycompany:*"  // your vendor group
             }
             intoLayer("snapshot-dependencies") {
                 include "*:*:*SNAPSHOT"
             }
             intoLayer("dependencies")
         }
-        layerOrder = ["dependencies", "spring-boot-loader", "internal-dependencies", "snapshot-dependencies", "application"]
+        layerOrder = ["dependencies", "spring-boot-loader", "vendor-dependencies", "snapshot-dependencies", "application"]
     }
 }
 ```
 
-Services without this config are unaffected — the `internal-dependencies` layer will be empty (0B).
+Services without this config are unaffected — the `vendor-dependencies` layer will be empty (0B).
 
 ## Resources
 
