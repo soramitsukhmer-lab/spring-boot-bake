@@ -7,7 +7,7 @@ ARG SPRING_BOOT_BAKE_APPDIR="/app"
 ARG SPRING_BOOT_BAKE_BASE_IMAGE=eclipse-temurin:17-jre-jammy
 
 # Extract Spring Boot application layers using jarmode=tools
-FROM ${SPRING_BOOT_BAKE_BASE_IMAGE} AS layered-tools
+FROM --platform=$BUILDPLATFORM ${SPRING_BOOT_BAKE_BASE_IMAGE} AS layered-tools
 ARG SPRING_BOOT_BAKE_APPDIR
 ARG GRADLE_BUILD_ARTIFACT
 RUN --mount=type=bind,target=/src,rw \
@@ -16,7 +16,7 @@ RUN --mount=type=bind,target=/src,rw \
 
 # Extract Spring Boot application layers using jarmode=layertools
 # Note: the jarmode=layertools is being deprecated in favor of jarmode=tools
-FROM ${SPRING_BOOT_BAKE_BASE_IMAGE} AS layered-layertools
+FROM --platform=$BUILDPLATFORM ${SPRING_BOOT_BAKE_BASE_IMAGE} AS layered-layertools
 ARG SPRING_BOOT_BAKE_APPDIR
 ARG GRADLE_BUILD_ARTIFACT
 RUN --mount=type=bind,target=/src,rw \
@@ -24,7 +24,7 @@ RUN --mount=type=bind,target=/src,rw \
     && mkdir -p ${SPRING_BOOT_BAKE_APPDIR}/vendor-dependencies/
 
 # Intermediate layer to extract the layers using the specified jarmode
-FROM layered-${JARMODE} AS layered
+FROM --platform=$BUILDPLATFORM layered-${JARMODE} AS layered
 
 # Final image with the Spring Boot application layers
 FROM ${SPRING_BOOT_BAKE_BASE_IMAGE}
